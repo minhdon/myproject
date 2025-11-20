@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static%}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <title>Email App</title>
+  </head>
+  <body>
+    <section class="hero">
+      <nav class="header">
+        <h2><i class="fa-solid fa-list"></i> Email</h2>
+        <div class="search">
+          <button id="btnSearch">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+          <input type="text" placeholder="Search" id="searchInput" />
+        </div>
+      </nav>
+
+      <div class="email-list-container">
+        {% for email in emails %}
+        <div class="email-row" id="eachEmail-{{ forloop.counter }}">
+          <div class="email-options">
+            <input
+              type="checkbox"
+              class="email-checkbox"
+              data-email-id="{{ email.id }}"
+            />
+          </div>
+
+          <a href="{% url 'detail_email' email.id %}" class="email-content">
+            <span class="email-title">{{ email.title }}</span>
+          </a>
+
+          <div class="email-date">{{email.time}}</div>
+
+          <form method="post" action="{% url 'delete_email' email.id%}">
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="delete-btn"
+              data-email-id="{{ email.id }}"
+              onclick="return confirm('aaa')"
+            >
+              <i class="fa-solid fa-trash"></i> Xóa
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="add-email-form">
+        <h3>Tạo Email Mới</h3>
+        <form method="POST" action="{% url 'add_email' %}">
+          {% csrf_token %}
+          <input
+            type="text"
+            name="title"
+            placeholder="Tiêu đề Email (Title)"
+            required
+            style="
+              padding: 8px;
+              margin-bottom: 10px;
+              width: 100%;
+              box-sizing: border-box;
+            "
+          />
+          <textarea
+            name="description"
+            placeholder="Nội dung Email (Description)"
+            required
+            rows="4"
+            style="
+              padding: 8px;
+              margin-bottom: 10px;
+              width: 100%;
+              box-sizing: border-box;
+            "
+          ></textarea>
+          <button
+            type="submit"
+            style="
+              padding: 10px 15px;
+              background-color: #4caf50;
+              color: white;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            <i class="fa-solid fa-paper-plane"></i> Gửi Email
+          </button>
+        </form>
+        <hr style="margin: 20px 0" />
+      </div>
+    </section>
+  </body>
+</html>
+
+<script>
+  const btnSearch = document.getElementById("btnSearch");
+  const searchInput = document.getElementById("searchInput");
+  const emailCheckboxes = document.querySelectorAll(".email-checkbox");
+
+  const getQueryParam = (name) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  };
+
+  const restoreSearchQuery = () => {
+    const query = getQueryParam("q");
+    if (query) {
+      searchInput.value = query;
+    }
+  };
+
+  const performSearch = () => {
+    const query = searchInput.value;
+
+    if (query) {
+      window.location.href = `/?q=${query}`;
+    } else {
+      window.location.href = `/`;
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    restoreSearchQuery();
+  });
+
+  btnSearch.addEventListener("click", () => {
+    performSearch();
+  });
+
+  searchInput.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+      performSearch();
+    }
+  });
+</script>
